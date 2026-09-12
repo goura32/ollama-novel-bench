@@ -1,0 +1,15 @@
+benchmark,model,mode,category,score,n
+jcq,gemma4:e2b-it-qat,max,imaginative stories,5.25,4
+jcq,gemma4:e2b-it-qat,max,unusual uses,7.0,4
+jcq,gemma4:e2b-it-qat,min,imaginative stories,5.0,4
+jcq,gemma4:e2b-it-qat,min,unusual uses,5.75,4
+novel-ja,gemma4:e2b-it-qat,max,複合制約・ミステリ,2.25,8
+novel-ja,gemma4:e2b-it-qat,max,視点維持,2.25,8
+novel-ja,gemma4:e2b-it-qat,min,複合制約・ミステリ,3.375,8
+novel-ja,gemma4:e2b-it-qat,min,視点維持,2.75,8
+objective-ja,gemma4:e2b-it-qat,max,JCommonsenseQA,1.0,1
+objective-ja,gemma4:e2b-it-qat,max,JMMLU/college_chemistry,0.0,1
+objective-ja,gemma4:e2b-it-qat,max,JamC-QA/custom,0.0,1
+objective-ja,gemma4:e2b-it-qat,min,JCommonsenseQA,1.0,1
+objective-ja,gemma4:e2b-it-qat,min,JMMLU/college_chemistry,0.0,1
+objective-ja,gemma4:e2b-it-qat,min,JamC-QA/custom,0.0,1

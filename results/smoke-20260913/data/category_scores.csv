@@ -1,0 +1,8 @@
+benchmark,model,mode,category,score,n
+jcq,gemma4:e2b-it-qat,min,imaginative stories,5.0,4
+jcq,gemma4:e2b-it-qat,min,unusual uses,5.75,4
+novel-ja,gemma4:e2b-it-qat,min,複合制約・ミステリ,3.25,8
+novel-ja,gemma4:e2b-it-qat,min,視点維持,3.125,8
+objective-ja,gemma4:e2b-it-qat,min,JCommonsenseQA,1.0,1
+objective-ja,gemma4:e2b-it-qat,min,JMMLU/college_chemistry,0.0,1
+objective-ja,gemma4:e2b-it-qat,min,JamC-QA/custom,0.0,1

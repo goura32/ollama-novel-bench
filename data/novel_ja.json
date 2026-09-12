@@ -1,0 +1,72 @@
+[
+  {
+    "id": "novel-ja-01",
+    "category": "会話・サブテキスト",
+    "focus": "会話の裏にある意図を直接説明せずに描く",
+    "prompt": "駅前の喫茶店で、久しぶりに会った姉と弟が十分だけ話す場面を書いてください。弟は仕事を辞めたことを隠しており、姉はそれに気づいているが問い詰めません。二人の本当の気持ちは台詞で断定せず、言い淀み、視線、注文、間の取り方、手の動きなどで示してください。会話を中心に、600〜900字程度で書いてください。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-02",
+    "category": "show-don't-tell",
+    "focus": "感情語を避け、行動と感覚で喪失を表現する",
+    "prompt": "引っ越し前夜、誰もいない子ども部屋を片づける人物の短い一場面を書いてください。大切な人を失ったことは読者に推測できるようにしますが、「悲しい」「寂しい」「死んだ」など感情や事情を直接説明する語は使わないでください。部屋の物、音、身体の動作を通じて変化を見せ、最後に小さな選択を置いてください。500〜800字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-03",
+    "category": "視点維持",
+    "focus": "一人称の限定視点を最後まで守る",
+    "prompt": "雨の夜、見知らぬ女性を駅まで案内する高校生の一人称限定視点で一場面を書いてください。語り手が見聞きしたこと、身体で感じたこと、そこから推測したことだけを書き、女性の内心や、語り手が見ていない場所の出来事は断定しないでください。案内の途中で女性の持ち物に小さな違和感を見つけます。700〜1000字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-04",
+    "category": "人物一貫性",
+    "focus": "設定した欠点と欲求を行動に反映する",
+    "prompt": "「謝ることだけが苦手で、他人の世話は焼きすぎる」古本屋の店主が、常連の中学生と一冊の本をめぐって衝突する場面を書いてください。店主の性格を説明文で紹介せず、選ぶ言葉と行動の一貫性で読者に伝えます。店主が簡単には謝れないまま、それでも相手のために一つ行動するところまで描いてください。600〜900字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-05",
+    "category": "情景・感覚",
+    "focus": "背景を人物の選択と結びつける",
+    "prompt": "台風の翌朝、川沿いの商店街で開店準備をする人物を書いてください。水位の跡、濡れた看板、泥、匂い、遠くの音など、少なくとも四つの感覚的な細部を使います。ただし風景の羅列にせず、人物が何を残し何を諦めるかという選択に結びつけてください。静かな緊張がほどける余韻のある800字前後の場面。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-06",
+    "category": "伏線・回収",
+    "focus": "さりげない小道具を自然に回収する",
+    "prompt": "祖父の家を売る前に最後の片づけをする孫の場面を書いてください。冒頭で、読者が意味を見落としても不自然でない小道具を一つ置きます（例として古い切符、欠けた茶碗、止まった時計など。例をそのまま使う必要はありません）。終盤でその小道具の意味が行動によって静かに回収されます。説明で謎を解かず、人物の発見として見せてください。700〜1000字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-07",
+    "category": "改稿",
+    "focus": "過剰な説明を抑え、意味を保って書き直す",
+    "prompt": "次の文章を、出来事と人物関係の核心を保ったまま、説明過多でない自然な日本語の小説文に改稿してください。比喩を重ねすぎず、同じ内容の繰り返しを削り、読者が行間から感情を受け取れるようにします。改稿後の本文だけを返してください。\n\n【改稿対象】\n彼は非常に深い悲しみと大きな後悔に打ちひしがれていて、まるで世界のすべてが終わってしまったかのような気持ちで、後悔してもしきれないほど後悔しながら、誰もいない部屋の中で、彼女から最後にもらった手紙を何度も何度も読み返していた。彼女はもう戻ってこないので、彼はその事実を受け入れられず、涙を流しながら悲しみに暮れていた。\n\n500〜700字以内。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-08",
+    "category": "余韻・結末",
+    "focus": "説明し切らない結末で感情を残す",
+    "prompt": "閉館間際の小さな図書館で、毎週同じ席に座っていた人物が、最後の一冊を返却する場面を書いてください。大きな事件やどんでん返しは使わず、人物の過去をすべて説明もしません。返却する本、司書との短いやりとり、外の季節の気配を使い、読み終えたあとに読者が続きを想像できる結末にしてください。600〜900字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-09",
+    "category": "ジャンル制約",
+    "focus": "静かなSF設定を人間ドラマに従属させる",
+    "prompt": "海面上昇から逃れるため、空中都市へ移住する前日の親子を描く静かなSFの一場面を書いてください。戦闘、専門用語の長い説明、世界設定の講義は避けます。父は行かない選択をし、娘は理由を知りながら尋ねない、という関係を会話と身の回りの行動で示してください。未来の技術は一つか二つの具体物としてだけ登場させ、700〜1000字程度で書いてください。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  },
+  {
+    "id": "novel-ja-10",
+    "category": "複合制約・ミステリ",
+    "focus": "会話、伏線、人物の一貫性を一場面に統合する",
+    "prompt": "雪の夜の交番で、落とし物を届けに来た老女と若い警官が話す場面を書いてください。老女は「赤い手袋を片方だけ」拾ったと言いますが、警官はそれを見て小さな嘘に気づきます。老女が嘘をつく理由は終盤の具体的な行動で分かり、冒頭の手袋の描写が意味を変えて戻ってきます。警官は規則を守る人物ですが、最後に規則と人助けの間で自分なりの選択をします。露骨な説明を避け、800〜1100字程度。",
+    "rubric": ["instruction_following", "japanese_naturalness", "prose_quality", "show_dont_tell", "character_emotion", "coherence", "originality", "ending_resonance"]
+  }
+]

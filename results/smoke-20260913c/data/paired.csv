@@ -1,0 +1,2 @@
+model,parameter_size,novel_min,novel_max,quality_delta,tok_s_min,tok_s_max,speed_delta,speed_delta_pct,budget_rescue_min_n,budget_rescue_max_n,budget_rescue_min_rate,budget_rescue_max_rate,jcq_min,jcq_max,jcq_delta
+gemma4:e2b-it-qat,4.6B,3.0999999999999996,2.275,-0.8249999999999997,172.9534982000225,128.70130189070335,-44.252196309319146,-25.586181701939925,0,7,0.0,1.0,5.4,6.15,0.75

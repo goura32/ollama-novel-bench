@@ -1,0 +1,18 @@
+{
+  "estimated_cost_usd": 0.0,
+  "cost_status": "included",
+  "cost_source": "none",
+  "input_tokens": 12853,
+  "output_tokens": 979,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "reasoning_tokens": 845,
+  "total_tokens": 13832,
+  "api_calls": 1,
+  "model": "gpt-5.6-luna",
+  "provider": "openai-codex",
+  "session_id": "20260913_044142_bbc50e",
+  "completed": true,
+  "failed": false,
+  "service_tier": null
+}

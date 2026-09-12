@@ -1,0 +1,3 @@
+model,parameter_size,mode,thinking_kind,generation_total,generation_ok,generation_failed,failure_rate,budget_rescue_n,budget_rescue_attempts,budget_rescue_rate,output_chars_mean,thinking_chars_mean,tok_s_mean,objective_ja_score,objective_ja_n,jcq_score,jcq_n,novel_primary_score,novel_n,eqcw_score,eqcw_n
+gemma4:e2b-it-qat,4.6B,max,levels,7,7,0,0.0,7,12,1.0,205.28571428571428,4088.285714285714,128.70130189070335,0.3333333333333333,3,6.15,2,2.275,2,,0
+gemma4:e2b-it-qat,4.6B,min,levels,7,7,0,0.0,0,0,0.0,363.14285714285717,0.0,172.9534982000225,0.3333333333333333,3,5.4,2,3.0999999999999996,2,,0

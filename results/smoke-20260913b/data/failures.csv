@@ -1,0 +1,3 @@
+kind,key,model,mode,benchmark,item_id,error
+generation,gemma4:e2b-it-qat|max|jmmlu-college_chemistry-0025,gemma4:e2b-it-qat,max,objective-ja,jmmlu-college_chemistry-0025,Ollama returned an empty content field
+generation,gemma4:e2b-it-qat|max|jamcqa-jamcqa-dev-custom-00003,gemma4:e2b-it-qat,max,objective-ja,jamcqa-jamcqa-dev-custom-00003,Ollama returned an empty content field

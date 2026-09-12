@@ -1,0 +1,2 @@
+rank,model,parameter_size,mode,thinking_kind,generation_total,generation_ok,generation_failed,failure_rate,output_chars_mean,thinking_chars_mean,tok_s_mean,objective_ja_score,objective_ja_n,jcq_score,jcq_n,novel_primary_score,novel_n,eqcw_score,eqcw_n
+1,gemma4:e2b-it-qat,4.6B,min,levels,7,7,0,0.0,366.0,0.0,173.52393536946184,0.3333333333333333,3,5.375,2,3.175,2,,0
