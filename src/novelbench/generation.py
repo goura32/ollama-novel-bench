@@ -32,14 +32,24 @@ def _mode_payload(payload: dict[str, Any], mode: dict[str, Any]) -> None:
 
 
 def build_chat_payload(
-    model_name: str,
+    model: dict[str, Any],
     item: BenchmarkItem,
     mode: dict[str, Any],
     profile: dict[str, Any],
 ) -> dict[str, Any]:
+    model_name = str(model["name"])
+    context_length = model.get("context_length")
+    if not isinstance(context_length, int) or context_length <= 0:
+        raise ValueError(f"native context length is unavailable for {model_name}")
     options: dict[str, Any] = dict(profile.get("ollama_options") or {})
     options["seed"] = int(profile.get("seed", 20260912))
-    options["num_predict"] = int(profile.get("num_predict", 768))
+    options["num_ctx"] = context_length
+    # Normal novel-writing profiles intentionally omit num_predict so generation
+    # can run until the model naturally stops or its native context is exhausted.
+    # A profile may still set num_predict when an external benchmark specification
+    # requires a fixed generation cap (currently EQ-CW only).
+    if profile.get("num_predict") is not None:
+        options["num_predict"] = int(profile["num_predict"])
     # Temperature/min_p are deliberately absent for all normal profiles.  The
     # optional EQ-CW profile is the only profile that requests upstream settings.
     payload: dict[str, Any] = {
@@ -81,57 +91,6 @@ def _response_record(response: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _response_summary(response_data: dict[str, Any], num_predict: int) -> dict[str, Any]:
-    return {
-        "num_predict": num_predict,
-        "content_length": response_data["content_length"],
-        "thinking_length": response_data["thinking_length"],
-        "content_present": bool(str(response_data["content"]).strip()),
-        "done": response_data["done"],
-        "done_reason": response_data["done_reason"],
-        "metrics": response_data["metrics"],
-    }
-
-
-def _empty_content_rescue_policy(profile: dict[str, Any]) -> dict[str, Any]:
-    configured = profile.get("empty_content_rescue")
-    settings = configured if isinstance(configured, dict) else {}
-    multiplier = max(2, int(settings.get("multiplier", 2)))
-    max_multiplier = max(multiplier, int(settings.get("max_multiplier", 4)))
-    return {
-        "enabled": bool(settings.get("enabled", True)),
-        "multiplier": multiplier,
-        "max_multiplier": max_multiplier,
-    }
-
-
-def _with_num_predict(payload: dict[str, Any], num_predict: int) -> dict[str, Any]:
-    request = dict(payload)
-    request["options"] = dict(payload["options"])
-    request["options"]["num_predict"] = num_predict
-    return request
-
-
-def _budget_rescue_record(base_num_predict: int, policy: dict[str, Any]) -> dict[str, Any]:
-    max_num_predict = (
-        base_num_predict * policy["max_multiplier"]
-        if policy["enabled"]
-        else base_num_predict
-    )
-    return {
-        "enabled": policy["enabled"],
-        "trigger": "empty_content_or_subjective_length",
-        "base_num_predict": base_num_predict,
-        "multiplier": policy["multiplier"],
-        "max_multiplier": policy["max_multiplier"],
-        "max_num_predict": max_num_predict,
-        "used": False,
-        "exhausted": False,
-        "rescue_request_count": 0,
-        "response_summaries": [],
-    }
-
-
 def run_generations(
     client: OllamaClient,
     store: RunStore,
@@ -141,10 +100,10 @@ def run_generations(
 ) -> dict[str, int]:
     """Run model × thinking mode × item in a single deterministic loop.
 
-    Output-budget rescue is handled separately from HTTP/network retries. The
-    first request always uses the profile budget. Empty output, or a subjective
-    creative response ending with done_reason=length, triggers the finite 2x
-    budget rescue sequence.
+    Each model runs with its discovered native maximum context length. Normal
+    novel-writing profiles do not set ``num_predict``: the model must stop
+    naturally, otherwise context exhaustion is recorded as a model behavior.
+    HTTP/network retries repeat the exact same request.
     """
     finished = store.completed_keys("generations.jsonl")
     counts = {"planned": 0, "skipped": 0, "ok": 0, "error": 0}
@@ -164,12 +123,7 @@ def run_generations(
             if key in finished:
                 counts["skipped"] += 1
                 continue
-            payload = build_chat_payload(model_name, item, mode, profile)
-            base_num_predict = int(payload["options"]["num_predict"])
-            policy = _empty_content_rescue_policy(profile)
-            rescue = _budget_rescue_record(base_num_predict, policy)
-            request_payload = payload
-            current_num_predict = base_num_predict
+            payload = build_chat_payload(model, item, mode, profile)
             max_retries = int(profile.get("max_retries", 2))
             network_retries = 0
             retry_history: list[dict[str, Any]] = []
@@ -182,6 +136,9 @@ def run_generations(
                 "thinking_kind": (model.get("thinking") or {}).get("kind"),
                 "model_digest": model.get("digest"),
                 "parameter_size": model.get("parameter_size"),
+                "native_context_length": model.get("context_length"),
+                "effective_num_ctx": payload["options"].get("num_ctx"),
+                "num_predict": payload["options"].get("num_predict"),
                 "backend": "ollama",
                 "provider": "ollama",
                 "provider_actual": "ollama",
@@ -196,11 +153,14 @@ def run_generations(
                 "api_request": payload,
                 "started_at": utc_now(),
             }
+            response_data: dict[str, Any] | None = None
             while True:
                 attempt += 1
                 try:
-                    response = client.chat(request_payload)
-                except Exception as exc:  # finite HTTP/network retries, same budget
+                    response = client.chat(payload)
+                    response_data = _response_record(response)
+                    break
+                except Exception as exc:
                     last_error = str(exc)[:2000]
                     network_retries += 1
                     retry_history.append(
@@ -210,7 +170,6 @@ def run_generations(
                             else "client_error",
                             "attempt": attempt,
                             "retry_index": network_retries,
-                            "num_predict": current_num_predict,
                             "http_status": getattr(exc, "status", None),
                             "error": last_error,
                         }
@@ -220,80 +179,53 @@ def run_generations(
                         continue
                     break
 
-                response_data = _response_record(response)
-                is_rescue_request = rescue["used"]
-                if is_rescue_request:
-                    rescue["response_summaries"].append(
-                        _response_summary(response_data, current_num_predict)
-                    )
+            if response_data is not None:
                 content_present = bool(str(response_data["content"]).strip())
-                subjective_truncated = (
-                    content_present
-                    and response_data.get("done_reason") == "length"
-                    and item.benchmark != "objective-ja"
+                context_exhausted = response_data.get("done_reason") == "length"
+                record.update(
+                    {
+                        "attempts": attempt,
+                        "network_retries": network_retries,
+                        "retry_history": retry_history,
+                        "context_exhausted": context_exhausted,
+                        "content": response_data["content"],
+                        "thinking": response_data["thinking"],
+                        "thinking_length": response_data["thinking_length"],
+                        "content_length": response_data["content_length"],
+                        **response_data["metrics"],
+                        "response": response_data,
+                        "finished_at": utc_now(),
+                    }
                 )
-                if content_present and not subjective_truncated:
-                    record.update(
-                        {
-                            "status": "ok",
-                            "attempts": attempt,
-                            "network_retries": network_retries,
-                            "retry_history": retry_history,
-                            "initial_num_predict": base_num_predict,
-                            "final_num_predict": current_num_predict,
-                            "empty_content_rescue": rescue,
-                            "content": response_data["content"],
-                            "thinking": response_data["thinking"],
-                            "thinking_length": response_data["thinking_length"],
-                            "content_length": response_data["content_length"],
-                            **response_data["metrics"],
-                            "response": response_data,
-                            "finished_at": utc_now(),
-                        }
-                    )
+                if content_present and not context_exhausted:
+                    record["status"] = "ok"
                     if item.benchmark == "objective-ja":
                         score, prediction = score_multiple_choice(response_data["content"], item)
                         record["objective_score"] = score
                         record["prediction"] = prediction
                     counts["ok"] += 1
-                    break
-
-                if not is_rescue_request:
-                    rescue["response_summaries"].append(
-                        _response_summary(response_data, current_num_predict)
+                else:
+                    record["status"] = "error"
+                    record["error"] = (
+                        "Ollama exhausted the model context before natural completion"
+                        if context_exhausted
+                        else "Ollama returned an empty content field"
                     )
-                last_error = (
-                    "Ollama response hit the output limit before completing subjective content"
-                    if subjective_truncated
-                    else "Ollama returned an empty content field"
-                )
-                next_num_predict = current_num_predict * policy["multiplier"]
-                if (
-                    not policy["enabled"]
-                    or next_num_predict > rescue["max_num_predict"]
-                ):
-                    rescue["exhausted"] = True
-                    break
-                rescue["used"] = True
-                rescue["rescue_request_count"] += 1
-                current_num_predict = next_num_predict
-                request_payload = _with_num_predict(payload, current_num_predict)
-
-            if record.get("status") != "ok":
+                    counts["error"] += 1
+            else:
                 record.update(
                     {
                         "status": "error",
                         "attempts": attempt,
                         "network_retries": network_retries,
                         "retry_history": retry_history,
-                        "initial_num_predict": base_num_predict,
-                        "final_num_predict": current_num_predict,
-                        "empty_content_rescue": rescue,
+                        "context_exhausted": False,
                         "error": last_error or "unknown generation failure",
                         "finished_at": utc_now(),
                     }
                 )
                 counts["error"] += 1
+
             store.append("generations.jsonl", record)
             finished.add(key)
     return counts

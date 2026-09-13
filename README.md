@@ -78,9 +78,9 @@ smoke/screeningでは、JamC-QAは軽量な `dev` split、fullでは `test` spli
 - levelを受理: `min=none/off相当`、`max=そのOllamaが実際に受理してthinking本文を返す最高level`（`high`、`xhigh`、`max`等）。
 - 判定不能: manifestの `kind` とprobe結果を確認し、推測で能力を補いません。
 
-通常プロファイルでは `temperature`、`top_p`、`top_k`等を送らず、モデル既定値を尊重します。再現性のためseedと `num_predict` はプロファイルで明示します。生成は `model -> thinking mode -> item` の完全直列です。
+通常プロファイルでは `temperature`、`top_p`、`top_k` 等を送らず、モデル既定値を尊重します。ローカルモデルは `/api/show` で取得した各モデル固有の最大 `context_length` を `num_ctx` に設定します。通常の小説ベンチでは `num_predict` を指定せず、MIN/MAX thinkingとも同じnative context内でモデル自身のEOSによる自然終了に任せます。生成は `model -> thinking mode -> item` の完全直列です。
 
-生成予算の扱いは固定です。最初のリクエストは常にプロファイルの `num_predict` をそのまま使います。応答本文が空（空白だけを含む）の場合だけ、thinkingが予算を使い切った可能性への救済として `num_predict` を2倍ずつ増やして再試行し、profileの `empty_content_rescue.max_multiplier`（通常はbaseの4倍）を上限にします。smokeは現在のgemma4:e2b-it-qatの長いthinkingだけのobjective応答も有限に救済できるよう16倍を設定しています。本文が一文字でも非空なら、`done_reason=length` でも通常の成功として保存し、勝手に長文化しません。HTTP/network retryは同じbudgetで行う別経路です。救済で試した各budgetとresponse summaryはgeneration recordに保存され、CSV・README・manifestのmin/max比較にも救済件数と試行回数を出します。
+ローカル生成では出力budget rescueを行いません。`done_reason=length` は、そのモデルが利用可能なnative contextを自然終了前に使い切った挙動としてgeneration errorに記録します。空contentも再生成で隠さずerrorとして保存します。HTTP/network障害だけは同一requestで有限回retryします。外部ベンチ仕様として固定出力長が必要なEQ-CWなどは例外としてprofileの `num_predict` を明示できます。過去runに保存済みのbudget-rescue telemetryはreport互換性のため引き続き読み取れます。
 
 ## Judge
 

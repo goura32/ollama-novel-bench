@@ -14,13 +14,7 @@
     ],
     "novel_count": 2,
     "eqcw_count": 0,
-    "num_predict": 384,
     "max_retries": 1,
-    "empty_content_rescue": {
-      "enabled": true,
-      "multiplier": 2,
-      "max_multiplier": 16
-    },
     "cloud_reference": {
       "enabled": false,
       "model": "z-ai/glm-5.3-flash",
@@ -59,13 +53,7 @@
     "jcq_per_task": 1,
     "novel_count": 6,
     "eqcw_count": 0,
-    "num_predict": 768,
     "max_retries": 2,
-    "empty_content_rescue": {
-      "enabled": true,
-      "multiplier": 2,
-      "max_multiplier": 4
-    },
     "cloud_reference": {
       "enabled": true,
       "model": "z-ai/glm-5.3-flash",
@@ -104,13 +92,7 @@
     "jcq_per_task": 20,
     "novel_count": 10,
     "eqcw_count": 0,
-    "num_predict": 2048,
     "max_retries": 2,
-    "empty_content_rescue": {
-      "enabled": true,
-      "multiplier": 2,
-      "max_multiplier": 4
-    },
     "cloud_reference": {
       "enabled": true,
       "model": "z-ai/glm-5.3-flash",
@@ -152,11 +134,6 @@
     "eqcw_iterations": 3,
     "num_predict": 1400,
     "max_retries": 2,
-    "empty_content_rescue": {
-      "enabled": true,
-      "multiplier": 2,
-      "max_multiplier": 4
-    },
     "judge": true,
     "ollama_options": {
       "temperature": 0.7,

@@ -107,12 +107,12 @@ def _manifest_base(
             "ollama_max_loaded_models_assumption": 1,
         },
         "generation_policy": {
-            "initial_num_predict": int(profile.get("num_predict", 768)),
-            "empty_content_rescue": dict(
-                profile.get(
-                    "empty_content_rescue",
-                    {"enabled": True, "multiplier": 2, "max_multiplier": 4},
-                )
+            "context_policy": "model_native_max",
+            "num_predict": profile.get("num_predict"),
+            "num_predict_policy": (
+                "profile_fixed"
+                if profile.get("num_predict") is not None
+                else "unset_until_native_context_exhaustion"
             ),
             "transport_retry_count": int(profile.get("max_retries", 2)),
         },
