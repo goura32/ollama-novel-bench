@@ -11,10 +11,22 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
+from .cloud import cloud_reference_config, run_cloud_reference
 from .datasets import BenchmarkItem, load_profile_items
 from .environment import collect_environment
 from .generation import run_generations
-from .judge import JUDGE_MODEL, JUDGE_PROVIDER, JUDGE_REASONING, judge_run
+from .judge import (
+    JUDGE_BACKEND,
+    JUDGE_MODEL,
+    JUDGE_PROVIDER,
+    JUDGE_REASONING,
+    LUNA_AUDIT_BACKEND,
+    LUNA_AUDIT_MODEL,
+    LUNA_AUDIT_PROVIDER,
+    LUNA_AUDIT_REASONING,
+    judge_run,
+    luna_audit_run,
+)
 from .models import discover_models, probe_model_profiles, select_models
 from .ollama import OllamaClient
 from .reporting import build_report
@@ -74,8 +86,10 @@ def _manifest_base(
     models: list[dict[str, Any]],
     items: list[BenchmarkItem],
     sources: list[dict[str, Any]],
+    cloud_reference: dict[str, Any],
+    ollama_version: str | None,
 ) -> dict[str, Any]:
-    version = client.version().get("version")
+    version = ollama_version
     environment = collect_environment(root, ollama_version=str(version) if version else None)
     return {
         "schema_version": "0.1",
@@ -110,22 +124,21 @@ def _manifest_base(
         "item_ids": [item.item_id for item in items],
         "items_file": "data/items.jsonl",
         "judge": {
+            "backend": JUDGE_BACKEND,
             "provider": JUDGE_PROVIDER,
             "model": JUDGE_MODEL,
             "reasoning": JUDGE_REASONING,
-            "command": [
-                "hermes",
-                "--safe-mode",
-                "--provider",
-                JUDGE_PROVIDER,
-                "-m",
-                JUDGE_MODEL,
-                "--reasoning",
-                JUDGE_REASONING,
-                "-z",
-                "<prompt>",
-            ],
+            "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+            "routing": {"require_parameters": True, "sort": "price"},
         },
+        "independent_audit": {
+            "backend": LUNA_AUDIT_BACKEND,
+            "provider": LUNA_AUDIT_PROVIDER,
+            "model": LUNA_AUDIT_MODEL,
+            "reasoning": LUNA_AUDIT_REASONING,
+            "role": "cloud_reference_creative_only",
+        },
+        "cloud_reference": cloud_reference,
         "package_version": __version__,
     }
 
@@ -149,6 +162,9 @@ def _execute_run(
     base: str,
     cache_dir: Path,
     resume: bool = False,
+    force_cloud_reference: bool = False,
+    disable_cloud_reference: bool = False,
+    cloud_reference_only: bool = False,
 ) -> dict[str, Any]:
     profiles = load_profiles(root)
     if profile_name not in profiles:
@@ -162,31 +178,76 @@ def _execute_run(
         profile_name = str(manifest.get("profile", profile_name))
         models = list(manifest.get("models") or [])
         item_values = store.load_items()
-        if not models or not item_values:
-            raise ValueError("run cannot resume: manifest models or data/items.jsonl is missing")
+        cloud_reference = dict(manifest.get("cloud_reference") or {})
+        if not cloud_reference:
+            cloud_reference = cloud_reference_config(profile, profile_name)
+        if cloud_reference_only:
+            raise ValueError("--cloud-reference-only is available only for a new run")
+        if force_cloud_reference:
+            cloud_reference["enabled"] = True
+        if disable_cloud_reference:
+            cloud_reference["enabled"] = False
+        if (not models and not cloud_reference.get("enabled")) or not item_values:
+            raise ValueError("run cannot resume: no local/cloud target or data/items.jsonl is missing")
         items = [BenchmarkItem.from_dict(value) for value in item_values]
+        manifest["cloud_reference"] = cloud_reference
         manifest["status"] = "running"
         store.write_manifest(manifest)
+        version = (manifest.get("ollama") or {}).get("version")
     else:
         if (target_dir / "manifest.json").exists():
             raise ValueError(f"run already exists: {run_id}; use novelbench resume {run_id}")
         target_dir.mkdir(parents=True, exist_ok=True)
+        cloud_reference = cloud_reference_config(
+            profile,
+            profile_name,
+            force_enable=force_cloud_reference,
+            disable=disable_cloud_reference,
+            force_only=cloud_reference_only,
+        )
+        if cloud_reference_only and requested_models:
+            raise ValueError("--cloud-reference-only cannot be combined with --models")
+        if cloud_reference_only and disable_cloud_reference:
+            raise ValueError("--cloud-reference-only cannot be combined with --no-cloud-reference")
         client = OllamaClient(base, timeout=600)
-        all_models = discover_models(client, probe=False)
-        models = select_run_models(all_models, requested_models, profile_name)
-        if not models:
-            raise ValueError("Ollama returned no generation-capable models")
-        models = probe_model_profiles(client, models)
+        if cloud_reference_only:
+            models = []
+            version = None
+        else:
+            all_models = discover_models(client, probe=False)
+            models = select_run_models(all_models, requested_models, profile_name)
+            if not models:
+                raise ValueError("Ollama returned no generation-capable models")
+            models = probe_model_profiles(client, models)
+            version_value = client.version().get("version")
+            version = str(version_value) if version_value else None
         items, sources = load_profile_items(root, cache_dir, profile_name, profile)
         store = RunStore(target_dir)
         manifest = _manifest_base(
-            root, client, run_id, profile_name, profile, models, items, sources
+            root,
+            client,
+            run_id,
+            profile_name,
+            profile,
+            models,
+            items,
+            sources,
+            cloud_reference,
+            version,
         )
         store.write_manifest(manifest)
         store.write_items([item.to_dict() for item in items])
 
     client = OllamaClient(base, timeout=600)
-    generation_counts = run_generations(client, store, models, items, profile)
+    local_counts = run_generations(client, store, models, items, profile)
+    cloud_counts = run_cloud_reference(None, store, items, cloud_reference)
+    generation_counts = {
+        field: local_counts[field] + cloud_counts[field]
+        for field in ("planned", "skipped", "ok", "error")
+    }
+    generation_counts["local"] = local_counts
+    generation_counts["cloud_reference"] = cloud_counts
+    manifest["cloud_reference"] = cloud_reference
     manifest["status"] = "generation_complete"
     _update_progress(store, manifest, generation_counts)
     judge_counts = None
@@ -196,12 +257,24 @@ def _execute_run(
             store,
             items,
             only_missing=True,
-            timeout=float(profile.get("judge_timeout", 300)),
+            timeout=float(profile.get("judge_timeout", 180)),
             max_retries=int(profile.get("max_retries", 2)),
         )
+        audit_counts = None
+        if cloud_reference.get("enabled") and cloud_reference.get("independent_audit", True):
+            audit_counts = luna_audit_run(
+                root,
+                store,
+                items,
+                only_missing=True,
+                timeout=float(profile.get("judge_timeout", 300)),
+                max_retries=int(profile.get("max_retries", 2)),
+            )
+            judge_counts["independent_audit"] = audit_counts
+    audit_error = bool(judge_counts and judge_counts.get("independent_audit", {}).get("error"))
     manifest["status"] = (
         "complete_with_errors"
-        if generation_counts["error"] or (judge_counts and judge_counts["error"])
+        if generation_counts["error"] or (judge_counts and judge_counts["error"]) or audit_error
         else "complete"
     )
     _update_progress(store, manifest, generation_counts, judge_counts)
@@ -351,6 +424,9 @@ def _cmd_run(args: argparse.Namespace, root: Path, resume: bool = False) -> int:
         base=base_url(args.base_url),
         cache_dir=Path(args.cache_dir).expanduser(),
         resume=resume,
+        force_cloud_reference=bool(getattr(args, "cloud_reference", False)),
+        disable_cloud_reference=bool(getattr(args, "no_cloud_reference", False)),
+        cloud_reference_only=bool(getattr(args, "cloud_reference_only", False)),
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     if args.publish:
@@ -372,13 +448,14 @@ def _cmd_judge(args: argparse.Namespace, root: Path) -> int:
         store,
         items,
         only_missing=False,
-        timeout=float(manifest.get("config", {}).get("judge_timeout", 300)),
+        timeout=float(manifest.get("config", {}).get("judge_timeout", 180)),
         max_retries=int(manifest.get("config", {}).get("max_retries", 2)),
     )
     manifest["last_judge"] = {
         "at": utc_now(),
         "counts": counts,
         "fixed_configuration": {
+            "backend": JUDGE_BACKEND,
             "provider": JUDGE_PROVIDER,
             "model": JUDGE_MODEL,
             "reasoning": JUDGE_REASONING,
@@ -389,6 +466,41 @@ def _cmd_judge(args: argparse.Namespace, root: Path) -> int:
     print(
         json.dumps(
             {"run_id": args.run_id, "judge": counts, "report": report}, ensure_ascii=False, indent=2
+        )
+    )
+    return 0
+
+
+def _cmd_audit_luna(args: argparse.Namespace, root: Path) -> int:
+    target = run_dir(root, args.run_id)
+    store = RunStore(target)
+    manifest = store.load_manifest()
+    items = [BenchmarkItem.from_dict(value) for value in store.load_items()]
+    counts = luna_audit_run(
+        root,
+        store,
+        items,
+        only_missing=not bool(getattr(args, "force", False)),
+        timeout=float(manifest.get("config", {}).get("judge_timeout", 300)),
+        max_retries=int(manifest.get("config", {}).get("max_retries", 2)),
+    )
+    manifest["last_independent_audit"] = {
+        "at": utc_now(),
+        "counts": counts,
+        "fixed_configuration": {
+            "backend": LUNA_AUDIT_BACKEND,
+            "provider": LUNA_AUDIT_PROVIDER,
+            "model": LUNA_AUDIT_MODEL,
+            "reasoning": LUNA_AUDIT_REASONING,
+        },
+    }
+    store.write_manifest(manifest)
+    report = build_report(target)
+    print(
+        json.dumps(
+            {"run_id": args.run_id, "independent_audit": counts, "report": report},
+            ensure_ascii=False,
+            indent=2,
         )
     )
     return 0
@@ -454,21 +566,53 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = sub.add_parser("run", help="generate, judge and report a new run")
     run_parser.add_argument("--profile", choices=("smoke", "quick", "full", "eqcw"), required=True)
     run_parser.add_argument("--run-id", required=True)
-    run_parser.add_argument("--models", help="comma-separated exact Ollama names")
+    run_parser.add_argument("--models", help="comma-separated exact local Ollama names")
     run_parser.add_argument("--base-url")
     run_parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE))
+    cloud_group = run_parser.add_mutually_exclusive_group()
+    cloud_group.add_argument(
+        "--cloud-reference",
+        action="store_true",
+        help="include the GLM cloud reference target (also enables it for smoke)",
+    )
+    cloud_group.add_argument(
+        "--no-cloud-reference",
+        action="store_true",
+        help="disable the cloud reference target",
+    )
+    run_parser.add_argument(
+        "--cloud-reference-only",
+        action="store_true",
+        help="run only the cloud GLM reference; skips Ollama discovery",
+    )
     run_parser.add_argument("--publish", action="store_true")
 
     resume_parser = sub.add_parser("resume", help="resume pending items in a run")
     resume_parser.add_argument("run_id")
     resume_parser.add_argument("--base-url")
     resume_parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE))
+    resume_cloud_group = resume_parser.add_mutually_exclusive_group()
+    resume_cloud_group.add_argument("--cloud-reference", action="store_true")
+    resume_cloud_group.add_argument("--no-cloud-reference", action="store_true")
+    resume_parser.add_argument(
+        "--cloud-reference-only",
+        action="store_true",
+        help="not valid for resume; kept for command symmetry",
+    )
     resume_parser.add_argument("--publish", action="store_true")
 
     judge_parser = sub.add_parser(
-        "judge", help="rejudge generation data with the fixed Hermes Judge"
+        "judge", help="rejudge creative generation data with the fixed OpenRouter GLM Judge"
     )
     judge_parser.add_argument("run_id")
+
+    audit_parser = sub.add_parser(
+        "audit-luna", help="run the independent Luna(Max) audit on cloud-reference creative data"
+    )
+    audit_parser.add_argument("run_id")
+    audit_parser.add_argument(
+        "--force", action="store_true", help="append a fresh Luna audit even when one already exists"
+    )
 
     report_parser = sub.add_parser("report", help="rebuild CSV/JSON and charts")
     report_parser.add_argument("run_id")
@@ -500,6 +644,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_resume(args, root)
         if args.command == "judge":
             return _cmd_judge(args, root)
+        if args.command == "audit-luna":
+            return _cmd_audit_luna(args, root)
         if args.command == "report":
             return _cmd_report(args, root)
         if args.command == "publish":

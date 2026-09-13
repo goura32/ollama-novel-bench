@@ -42,7 +42,7 @@
 
 - [EQ-Bench Creative Writing v3 repository](https://github.com/EQ-bench/creative-writing-bench) — 32 prompts×3 iterations、temperature `0.7`、`min_p 0.1`、公式のrubric/Elo手順の説明。
 - ライセンス: upstream repositoryと同梱データのライセンス表記を実行時に確認する。ここではプロンプト本体を再配布せず、ユーザーキャッシュから取得する。
-- 注意: 公式leaderboardは別のJudge、履歴runs、pairwise/Elo/Glicko処理を使う。本プロジェクトの固定Judgeは `openai-codex / gpt-5.6-luna / reasoning=max`なので、`eqcw`の値は公式leaderboard互換ではない。
+- 注意: 本プロジェクトの標準Judgeは OpenRouter `z-ai/glm-5.3-flash` / `reasoning=max` で、Luna(Max)はcloud referenceの独立監査専用です。したがって `eqcw` の値は公式leaderboard互換ではありません。
 
 ## 本プロジェクトの取得・保存方針
 

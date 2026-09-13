@@ -120,7 +120,7 @@ def _budget_rescue_record(base_num_predict: int, policy: dict[str, Any]) -> dict
     )
     return {
         "enabled": policy["enabled"],
-        "trigger": "empty_content",
+        "trigger": "empty_content_or_subjective_length",
         "base_num_predict": base_num_predict,
         "multiplier": policy["multiplier"],
         "max_multiplier": policy["max_multiplier"],
@@ -141,9 +141,10 @@ def run_generations(
 ) -> dict[str, int]:
     """Run model × thinking mode × item in a single deterministic loop.
 
-    An empty response body is handled separately from HTTP/network retries.  The
-    first request always uses the profile budget; only an empty body can trigger
-    the finite 2x budget rescue sequence.
+    Output-budget rescue is handled separately from HTTP/network retries. The
+    first request always uses the profile budget. Empty output, or a subjective
+    creative response ending with done_reason=length, triggers the finite 2x
+    budget rescue sequence.
     """
     finished = store.completed_keys("generations.jsonl")
     counts = {"planned": 0, "skipped": 0, "ok": 0, "error": 0}
@@ -181,6 +182,13 @@ def run_generations(
                 "thinking_kind": (model.get("thinking") or {}).get("kind"),
                 "model_digest": model.get("digest"),
                 "parameter_size": model.get("parameter_size"),
+                "backend": "ollama",
+                "provider": "ollama",
+                "provider_actual": "ollama",
+                "model_actual": model_name,
+                "reference_only": False,
+                "ranking_eligible": True,
+                "target_role": "local",
                 "benchmark": item.benchmark,
                 "category": item.category,
                 "item_id": item.item_id,
@@ -218,7 +226,13 @@ def run_generations(
                     rescue["response_summaries"].append(
                         _response_summary(response_data, current_num_predict)
                     )
-                if str(response_data["content"]).strip():
+                content_present = bool(str(response_data["content"]).strip())
+                subjective_truncated = (
+                    content_present
+                    and response_data.get("done_reason") == "length"
+                    and item.benchmark != "objective-ja"
+                )
+                if content_present and not subjective_truncated:
                     record.update(
                         {
                             "status": "ok",
@@ -248,7 +262,11 @@ def run_generations(
                     rescue["response_summaries"].append(
                         _response_summary(response_data, current_num_predict)
                     )
-                last_error = "Ollama returned an empty content field"
+                last_error = (
+                    "Ollama response hit the output limit before completing subjective content"
+                    if subjective_truncated
+                    else "Ollama returned an empty content field"
+                )
                 next_num_predict = current_num_predict * policy["multiplier"]
                 if (
                     not policy["enabled"]

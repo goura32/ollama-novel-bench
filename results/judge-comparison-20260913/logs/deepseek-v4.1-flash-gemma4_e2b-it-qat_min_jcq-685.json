@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252951-xTcID0U6CDGQIOLAcluh",
+  "object": "chat.completion",
+  "created": 1789252951,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "Fireworks",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\":5,\"flexibility\":4,\"originality\":5,\"elaboration\":4},\"overall\":4.5,\"brief_rationale\":\"文は概ね日本語として通るが、「シグナルが」を文頭に反復する構成が単調で、比喩の接続もやや強引。時間の澱としての雨という着想は魅力的だが、廃墟・紫の空など既視感のある要素が多く、展開も描写の列挙に留まる。最後が未完のまま途切れており、物語としての完結性と人物・筋の彫り込みが不足している。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 975,
+    "completion_tokens": 513,
+    "total_tokens": 1488,
+    "cost": 0.00055308,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00055308,
+      "upstream_inference_prompt_cost": 0.0002145,
+      "upstream_inference_completions_cost": 0.00033858
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 361,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -5,6 +5,8 @@ Ollamaで動くローカルLLMを、日本語小説の執筆適性で無人比�
 ## 最新結果
 
 - [smoke-20260913c（予備試験・ランキング用途不可）](results/smoke-20260913c/README.md)
+- [Judge比較 2026-09-13（GLM/Luna/DeepSeekの校正）](results/judge-comparison-20260913/README.md)
+- [Judge選定と校正結果](docs/judge-selection.md)
 
 smokeは接続、モデル制御、生成、Judge、集計、グラフのエンドツーエンド確認用です。モデル間の結論には使わないでください。
 
@@ -33,7 +35,7 @@ uv run novelbench resume smoke-20260912
 
 ## quick / full / optional EQ-Bench
 
-通常のscreeningを開始する正確なコマンドは次です。`quick`はインストール済みの全generation-capableモデルを対象に、固定seedの小規模サンプルでモデルごとのthinking `min` / `max`を直列測定します。長時間実行なので、この実装セッションでは開始していません。
+通常のscreeningを開始する正確なコマンドは次です。`quick`はインストール済みの全generation-capableモデルを対象に、固定seedの小規模サンプルでモデルごとのthinking `min` / `max`を直列測定し、cloud referenceのGLMも`low` / `max`で測定します。長時間実行なので、この実装セッションでは開始していません。cloud referenceを省く場合だけ`--no-cloud-reference`を明示してください。
 
 ```bash
 uv run novelbench run --profile quick --run-id quick-20260912
@@ -82,17 +84,25 @@ smoke/screeningでは、JamC-QAは軽量な `dev` split、fullでは `test` spli
 
 ## Judge
 
-主観Judgeは常に次のHermes Agent設定です。GPT-5.6 Solは使用しません。
+標準LLM-as-a-JudgeはOpenRouterの `z-ai/glm-5.3-flash` / `reasoning=max`です。GPT-5.6 Solは使用しません。OpenRouter APIを直接利用し、キーは `~/.config/credstore/openrouter.key` から実行時だけ読み込みます。キーとAuthorization headerは成果物・ログ・manifestへ保存しません。
 
-```text
-hermes --safe-mode --provider openai-codex -m gpt-5.6-luna --reasoning max -z <prompt>
-```
+標準リクエストでは、`response_format.type=json_schema`、strict JSON Schema、`provider.only=["z-ai"]`、`allow_fallbacks=false`、`provider.require_parameters=true`、`usage.include=true`を明示し、Z.AI first-partyへ固定します。Judge出力は8192 tokensから開始し、空本文・`finish_reason=length`・不正JSONは採点値として採用せず、元の作品を16384 tokensまで再採点します。切れた採点文をrepairして0点へ変換しません。実際に返ったprovider・model、usage、reasoning tokens、cost、latencyと安全なrequest subsetを保存します。
+
+2026-09-13の同一8作品による校正では、GLMは8/8 JSON成功、LunaとのPearson `0.990` / Spearman `0.994` / MAE `0.269`、平均`16.27s`、8件`$0.005812`でした。DeepSeekは7/8、Spearman `0.857`、平均`43.17s`でした。このJSON遵守、Lunaとの一致度、速度、コストを標準Judgeの採用根拠とします。詳細は [results/judge-comparison-20260913/README.md](results/judge-comparison-20260913/README.md) と [docs/judge-selection.md](docs/judge-selection.md) にあります。8作品の小標本なので、人間評価との一致を保証するものではありません。
 
 Judge promptには対象モデル名、サイズ、thinking modeを渡しません。作品はdata boundaryで囲み、作品内の命令・採点要求・役割指定・メタ発言をJudgeへの命令として扱わないよう指定します。長さは統計化し、極端な長さだけでは加点しません。
 
-出力は指定キーだけのJSONを要求します。parse失敗時は修復を1回試し、それでも失敗したら有限回retryし、最終的にerrorをJSONLへ記録して先へ進みます。Judge model/provider/reasoning、Hermes binary、prompt version、prompt SHA256、usage、stdout/stderrの相対パスを保存します。生成とjudgmentは別JSONLなので、`novelbench judge <run-id>` で再採点できます。
+OpenRouterがstrict JSONを返しても、既存のbare JSON・exact key・score range・finite numberのparse validationを維持します。parse失敗時は修復を1回試し、それでも失敗したら有限回retryし、最終的にerrorをJSONLへ記録して先へ進みます。生成とjudgmentは別JSONLなので、`novelbench judge <run-id>` で標準GLMを再採点できます。
+
+既存のLuna実装は独立audit backendとして残します。Lunaは `openai-codex / gpt-5.6-luna / reasoning=max` で、cloud reference creativeの `independent_audit.jsonl` と `novelbench audit-luna <run-id>` だけに使います。標準Judge経路には入りません。
 
 full候補のpairwise比較では、同じA/BをA/B順とB/A順の両方で採点し、position biasを抑えます。
+
+## cloud reference GLM
+
+`quick` と `full` は、ローカルOllamaモデルに加えて `z-ai/glm-5.3-flash` 自身をcloud reference targetとして既定で含めます。OpenRouterのsupported effortに合わせ、ベンチマーク上のMINは`low`、MAXは`max`です。targetのrequest、実provider/model、usage、reasoning tokens、cost、latencyを生成データへ保存します。`smoke`は高速性優先でlocalのみが既定ですが、`--cloud-reference` または `--cloud-reference-only` で確認できます。
+
+Judgeとtargetを同じGLMにすると自己評価バイアスが入るため、cloud referenceには `reference_only=true` と `ranking_eligible=false` を付けます。GLMのcreative値は `self_judged=true` として別表示し、主ランキング・shortlistには使いません。creativeの独立値はLuna(Max)で採点し、`independent_audit.jsonl` に分けてレポートで並べます。objective-jaは通常どおり機械採点します。localとの直接順位比較は断定せず、グラフも別パネル・別表記に分けます。Judge costとcloud target generation costも別集計です。
 
 ## 結果の読み方
 
@@ -112,17 +122,18 @@ full候補のpairwise比較では、同じA/BをA/B順とB/A順の両方で採�
 ```text
 novelbench env
 novelbench models [--probe-thinking]
-novelbench run --profile smoke|quick|full|eqcw --run-id ID [--models NAME,...] [--publish]
-novelbench resume ID [--publish]
+novelbench run --profile smoke|quick|full|eqcw --run-id ID [--models NAME,...] [--cloud-reference|--no-cloud-reference|--cloud-reference-only] [--publish]
+novelbench resume ID [--cloud-reference|--no-cloud-reference] [--publish]
 novelbench judge ID
 novelbench report ID
 novelbench publish ID
 novelbench shortlist ID --top N
 ```
 
-- `run`: モデル検出、probe、items固定、直列生成、Judge、reportを実行。
+- `run`: モデル検出、probe、items固定、local/cloud直列生成、Judge、reportを実行。`--cloud-reference`、`--no-cloud-reference`、`--cloud-reference-only`でcloud targetを制御し、`--models`はlocal Ollama exact nameだけを指定します。
 - `resume`: manifestとitemsを再利用し、terminal recordのあるitemを再実行しない。
-- `judge`: 生成済みcreative itemを固定Judgeで再採点（既存judgmentを置き換えず追記）。
+- `judge`: 生成済みcreative itemを固定OpenRouter GLM Judgeで再採点（既存judgmentを置き換えず追記）。
+- `audit-luna`: cloud referenceのcreative itemをLuna(Max)で独立監査し、`independent_audit.jsonl`へ保存。既存監査は既定でskipするため冪等です。意図的に再監査して追記する場合だけ `--force` を使います。
 - `report`: JSONLからCSV、README、PNG/SVGを再生成。
 - `shortlist`: ranking上位を `data/shortlist.json` に保存。pairwise自体はライブラリの `pairwise_compare` から実行できます。
 - `publish`: report生成→対象runだけcommit→`main`へpush→remote SHAをread-back検証。run外のdirty tree、commit、push、検証失敗は明示的に記録します。
@@ -139,7 +150,7 @@ data/generations.jsonl       生成本文・thinking・API request・メトリ�
 results/<run-id>/data/judgments.jsonl
 results/<run-id>/data/*.csv
 results/<run-id>/charts/*.png, *.svg
-results/<run-id>/logs/      Hermes Judge stdout/stderr、usage
+results/<run-id>/logs/      OpenRouter Judge/cloud metadata、Luna audit stdout/stderr、usage
 ```
 
 manifestにはhost/GPU、Python/Ollama/Hermes情報、container環境の安全なsubset、Ollama version、model digest/details、dataset snapshot SHA256、git commit、設定、probe結果を記録します。credential/API key/tokenは保存しません。環境変数のうち保存するのはGPU選択やOllama並列性などの非秘密値だけです。

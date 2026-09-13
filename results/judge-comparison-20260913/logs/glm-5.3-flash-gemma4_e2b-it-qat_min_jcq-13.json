@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252836-IK1EsknPhAcchLA34Zyr",
+  "object": "chat.completion",
+  "created": 1789252836,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Parasail",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\":7,\"flexibility\":6,\"originality\":6,\"elaboration\":6},\"overall\":6.2,\"brief_rationale\":\"カテゴリ分けされた構成で説明も明快だが、4項目途中で文が途切れて完結していない。アイデアは9個前後と幅はあるものの、建築や工学応用などは実在の既知用法に近く、独自性と具体性は中程度。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 836,
+    "completion_tokens": 717,
+    "total_tokens": 1553,
+    "cost": 0.0004839,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0004839,
+      "upstream_inference_prompt_cost": 0.0001254,
+      "upstream_inference_completions_cost": 0.0003585
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 606,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

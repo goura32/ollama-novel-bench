@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789253413-RxII2GpWHYFsFP66RFEJ",
+  "object": "chat.completion",
+  "created": 1789253413,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\":5,\"flexibility\":6,\"originality\":6,\"elaboration\":4},\"overall\":5.3,\"brief_rationale\":\"タイトルに沿った時を越える展開はあるが、文が途中で終わっており、描写も断片的で物語として未完成。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 710,
+    "completion_tokens": 2180,
+    "total_tokens": 2890,
+    "cost": 0.00145,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00145,
+      "upstream_inference_prompt_cost": 0.000142,
+      "upstream_inference_completions_cost": 0.001308
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2102,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

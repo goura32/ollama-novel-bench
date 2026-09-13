@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252921-hH9qHBNjmf8yPYvkmaRP",
+  "object": "chat.completion",
+  "created": 1789252921,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Together",
+  "system_fingerprint": "default",
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\": 6, \"flexibility\": 8, \"originality\": 7, \"elaboration\": 7},\"overall\": 7.0,\"brief_rationale\":\"建築・工学・ファッション・教育など多様な領域に及ぶ発想で柔軟性は高い。各項目に用途や仕組みの説明があり具体性もある。ただし文章が途中で途切れており完結していないため流暢性と綿密さが減点。折り紙の工学応用など実在する知見に近い項目もあり独自性は中程度。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 769,
+    "completion_tokens": 452,
+    "total_tokens": 1221,
+    "cost": 0.00034135,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00034135,
+      "upstream_inference_prompt_cost": 0.00011535,
+      "upstream_inference_completions_cost": 0.000226
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 309,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

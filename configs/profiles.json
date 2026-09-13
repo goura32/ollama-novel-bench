@@ -2,52 +2,165 @@
   "smoke": {
     "description": "1 model, short preflight only; not for ranking",
     "seed": 20260912,
-    "objective": {"jmmlu": 1, "jcommonsenseqa": 1, "jamcqa": 1},
+    "objective": {
+      "jmmlu": 1,
+      "jcommonsenseqa": 1,
+      "jamcqa": 1
+    },
     "jcq_per_task": 1,
-    "jcq_categories": ["unusual uses", "imaginative stories"],
+    "jcq_categories": [
+      "unusual uses",
+      "imaginative stories"
+    ],
     "novel_count": 2,
     "eqcw_count": 0,
     "num_predict": 384,
     "max_retries": 1,
-    "empty_content_rescue": {"enabled": true, "multiplier": 2, "max_multiplier": 16},
+    "empty_content_rescue": {
+      "enabled": true,
+      "multiplier": 2,
+      "max_multiplier": 16
+    },
+    "cloud_reference": {
+      "enabled": false,
+      "model": "z-ai/glm-5.3-flash",
+      "max_tokens": 768,
+      "max_retries": 1,
+      "empty_content_rescue": {
+        "enabled": true,
+        "multiplier": 2,
+        "max_multiplier": 2
+      },
+      "modes": [
+        {
+          "label": "min",
+          "effort": "low"
+        },
+        {
+          "label": "max",
+          "effort": "max"
+        }
+      ],
+      "self_judge": true,
+      "independent_audit": true,
+      "max_tokens_max": 8192,
+      "request_timeout_seconds": 180
+    },
     "judge": true
   },
   "quick": {
     "description": "fixed-seed overnight screening across installed generation models",
     "seed": 20260912,
-    "objective": {"jmmlu": 2, "jcommonsenseqa": 2, "jamcqa": 2},
+    "objective": {
+      "jmmlu": 2,
+      "jcommonsenseqa": 2,
+      "jamcqa": 2
+    },
     "jcq_per_task": 1,
     "novel_count": 6,
     "eqcw_count": 0,
     "num_predict": 768,
     "max_retries": 2,
-    "empty_content_rescue": {"enabled": true, "multiplier": 2, "max_multiplier": 4},
+    "empty_content_rescue": {
+      "enabled": true,
+      "multiplier": 2,
+      "max_multiplier": 4
+    },
+    "cloud_reference": {
+      "enabled": true,
+      "model": "z-ai/glm-5.3-flash",
+      "max_tokens": 768,
+      "max_retries": 2,
+      "empty_content_rescue": {
+        "enabled": true,
+        "multiplier": 2,
+        "max_multiplier": 2
+      },
+      "modes": [
+        {
+          "label": "min",
+          "effort": "low"
+        },
+        {
+          "label": "max",
+          "effort": "max"
+        }
+      ],
+      "self_judge": true,
+      "independent_audit": true,
+      "max_tokens_max": 8192,
+      "request_timeout_seconds": 180
+    },
     "judge": true
   },
   "full": {
     "description": "larger run for shortlisted candidates",
     "seed": 20260912,
-    "objective": {"jmmlu": 150, "jcommonsenseqa": 200, "jamcqa": 200},
+    "objective": {
+      "jmmlu": 150,
+      "jcommonsenseqa": 200,
+      "jamcqa": 200
+    },
     "jcq_per_task": 20,
     "novel_count": 10,
     "eqcw_count": 0,
     "num_predict": 2048,
     "max_retries": 2,
-    "empty_content_rescue": {"enabled": true, "multiplier": 2, "max_multiplier": 4},
+    "empty_content_rescue": {
+      "enabled": true,
+      "multiplier": 2,
+      "max_multiplier": 4
+    },
+    "cloud_reference": {
+      "enabled": true,
+      "model": "z-ai/glm-5.3-flash",
+      "max_tokens": 2048,
+      "max_retries": 2,
+      "empty_content_rescue": {
+        "enabled": true,
+        "multiplier": 2,
+        "max_multiplier": 2
+      },
+      "modes": [
+        {
+          "label": "min",
+          "effort": "low"
+        },
+        {
+          "label": "max",
+          "effort": "max"
+        }
+      ],
+      "self_judge": true,
+      "independent_audit": true,
+      "max_tokens_max": 8192,
+      "request_timeout_seconds": 180
+    },
     "judge": true
   },
   "eqcw": {
     "description": "optional English EQ-Bench Creative Writing v3 profile; not leaderboard-compatible",
     "seed": 20260912,
-    "objective": {"jmmlu": 0, "jcommonsenseqa": 0, "jamcqa": 0},
+    "objective": {
+      "jmmlu": 0,
+      "jcommonsenseqa": 0,
+      "jamcqa": 0
+    },
     "jcq_per_task": 0,
     "novel_count": 0,
     "eqcw_count": 32,
     "eqcw_iterations": 3,
     "num_predict": 1400,
     "max_retries": 2,
-    "empty_content_rescue": {"enabled": true, "multiplier": 2, "max_multiplier": 4},
+    "empty_content_rescue": {
+      "enabled": true,
+      "multiplier": 2,
+      "max_multiplier": 4
+    },
     "judge": true,
-    "ollama_options": {"temperature": 0.7, "min_p": 0.1}
+    "ollama_options": {
+      "temperature": 0.7,
+      "min_p": 0.1
+    }
   }
 }

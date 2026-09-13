@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789253454-cPq7tDoJM4hQYT2NTuYo",
+  "object": "chat.completion",
+  "created": 1789253454,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\":6,\"flexibility\":7,\"originality\":6,\"elaboration\":6},\"overall\":6.3,\"brief_rationale\":\"建築・工学・芸術など複数領域を横断するが、既知の応用例が多く、末尾が未完で列挙量も限定的。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 732,
+    "completion_tokens": 1196,
+    "total_tokens": 1928,
+    "cost": 0.000864,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.000864,
+      "upstream_inference_prompt_cost": 0.0001464,
+      "upstream_inference_completions_cost": 0.0007176
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1120,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

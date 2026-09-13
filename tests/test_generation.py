@@ -45,6 +45,7 @@ def test_empty_content_uses_doubling_budget_rescue_and_records_summaries(tmp_pat
         [
             response(content=""),
             response(content="途中までの本文", done_reason="length"),
+            response(content="完成した本文", done_reason="stop"),
         ]
     )
     store = RunStore(tmp_path / "run")
@@ -62,17 +63,20 @@ def test_empty_content_uses_doubling_budget_rescue_and_records_summaries(tmp_pat
     record = next(store.read_jsonl("generations.jsonl"))
     rescue = record["empty_content_rescue"]
     assert counts == {"planned": 1, "skipped": 0, "ok": 1, "error": 0}
-    assert [call["options"]["num_predict"] for call in client.calls] == [384, 768]
+    assert [call["options"]["num_predict"] for call in client.calls] == [384, 768, 1536]
     assert record["api_request"]["options"]["num_predict"] == 384
-    assert record["final_num_predict"] == 768
+    assert record["final_num_predict"] == 1536
     assert rescue["used"] is True
-    assert [summary["num_predict"] for summary in rescue["response_summaries"]] == [384, 768]
+    assert [summary["num_predict"] for summary in rescue["response_summaries"]] == [384, 768, 1536]
     assert rescue["response_summaries"][0]["content_length"] == 0
     assert rescue["response_summaries"][1]["done_reason"] == "length"
 
 
-def test_nonempty_length_response_is_success_without_budget_rescue(tmp_path: Path):
-    client = SequenceClient([response(content="本文", done_reason="length")])
+def test_nonempty_subjective_length_response_uses_budget_rescue(tmp_path: Path):
+    client = SequenceClient([
+        response(content="途中本文", done_reason="length"),
+        response(content="完成本文", done_reason="stop"),
+    ])
     store = RunStore(tmp_path / "run")
 
     counts = run_generations(
@@ -87,11 +91,11 @@ def test_nonempty_length_response_is_success_without_budget_rescue(tmp_path: Pat
 
     record = next(store.read_jsonl("generations.jsonl"))
     assert counts["ok"] == 1
-    assert len(client.calls) == 1
+    assert len(client.calls) == 2
     assert record["status"] == "ok"
-    assert record["response"]["done_reason"] == "length"
-    assert record["empty_content_rescue"]["used"] is False
-    assert record["empty_content_rescue"]["response_summaries"] == []
+    assert record["response"]["done_reason"] == "stop"
+    assert record["empty_content_rescue"]["used"] is True
+    assert [s["done_reason"] for s in record["empty_content_rescue"]["response_summaries"]] == ["length", "stop"]
 
 
 def test_transport_retry_keeps_budget_and_is_recorded_separately(tmp_path: Path):

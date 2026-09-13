@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252877-3X5aTWteKrIBvmHPwqyj",
+  "object": "chat.completion",
+  "created": 1789252877,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Friendli",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"instruction_following\": 2, \"japanese_naturalness\": 6, \"prose_quality\": 5, \"show_dont_tell\": 5, \"character_emotion\": 4, \"coherence\": 3, \"originality\": 4, \"ending_resonance\": 0},\"overall\":3.5,\"brief_rationale\":\"文中で途切れており約550字。嘘の理由の明かし、手袋描写の回帰、警官の選択など終盤の要件が全く存在しない。導入部分の描写はまずいが、「いつもの表情」など面識のない相手への矛盾や手袋の状況説明の混乱があり整合性を欠く。結末がないため余韻は評価不能。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 975,
+    "completion_tokens": 1909,
+    "total_tokens": 2884,
+    "cost": 0.00110075,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00110075,
+      "upstream_inference_prompt_cost": 0.00014625,
+      "upstream_inference_completions_cost": 0.0009545
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1841,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

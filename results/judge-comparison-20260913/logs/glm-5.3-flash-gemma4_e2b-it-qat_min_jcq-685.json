@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252820-JySCqlv61J3JHKhia3nx",
+  "object": "chat.completion",
+  "created": 1789252820,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Together",
+  "system_fingerprint": "default",
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\": 4, \"flexibility\": 5, \"originality\": 6, \"elaboration\": 4},\"overall\": 4.8,\"brief_rationale\":\"時間の澱みが降る雨や意志に従う雨粒など詩的な発想は見られるが、「老いた旅人のシグナル」といった指示語の混乱、シグナルの過剰な反復、そして文が途切れた未完の結末が流暢性と展開の完成度を大きく損なっている。テーマの答え(雨宿りの場)にも触れたまま物語が閉じない。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 774,
+    "completion_tokens": 1587,
+    "total_tokens": 2361,
+    "cost": 0.00082512,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 704,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00082512,
+      "upstream_inference_prompt_cost": 3.162e-05,
+      "upstream_inference_completions_cost": 0.0007935
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1436,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

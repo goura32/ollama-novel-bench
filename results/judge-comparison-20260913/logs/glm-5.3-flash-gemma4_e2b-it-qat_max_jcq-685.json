@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252914-xTDFBacHbT2XyiiZF8mD",
+  "object": "chat.completion",
+  "created": 1789252914,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Parasail",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\": 5, \"flexibility\": 6, \"originality\": 6, \"elaboration\": 5},\"overall\":5.5,\"brief_rationale\":\"雨宿りを時間を越える接点とする発想は新味があり、感覚的な描写も力がある。ただし「匂いする風」などの文法の揺らぎ、唐突な「彼」の登場、時間跳躍の接続の不明瞭さがあり、末尾が文の途中で途切れて未完のため完成度が下がる。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 734,
+    "completion_tokens": 932,
+    "total_tokens": 1666,
+    "cost": 0.0005761,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0005761,
+      "upstream_inference_prompt_cost": 0.0001101,
+      "upstream_inference_completions_cost": 0.000466
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 798,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252895-FeVlHzuUUTOSihJx59Jb",
+  "object": "chat.completion",
+  "created": 1789252895,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Friendli",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"instruction_following\": 3, \"japanese_naturalness\": 4, \"prose_quality\": 4, \"show_dont_tell\": 5, \"character_emotion\": 4, \"coherence\": 3, \"originality\": 4, \"ending_resonance\": 1},\"overall\":3.5,\"brief_rationale\":\"一人称の推測を断る姿勢は保たれているが、必須要素「持ち物の違和感」が文の途中で切断され未完。文字数も下限未満。周囲に人はいないのに通行人が通り過ぎる矛盾、傘とフードなのにコートが濡れる不整合、「感情を多くしていない」「歩調を合わせて〜歩調に合わせながら」等の冗長・不自然な表現があり、結末の余韻は皆無。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 961,
+    "completion_tokens": 2219,
+    "total_tokens": 3180,
+    "cost": 0.00125365,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00125365,
+      "upstream_inference_prompt_cost": 0.00014415,
+      "upstream_inference_completions_cost": 0.0011095
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2372,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "source_run": "smoke-20260913c",
+  "reasoning": "max",
+  "metrics": [
+    {
+      "judge": "gpt-5.6-luna",
+      "success": 8,
+      "json_success_rate": 1.0,
+      "mean_overall": 4.23125,
+      "mean_latency_s": 18.255728375,
+      "p95_latency_s": 33.2545089,
+      "total_cost_usd": 0.0,
+      "mean_reasoning_tokens": 701.375
+    },
+    {
+      "judge": "glm-5.3-flash",
+      "success": 8,
+      "json_success_rate": 1.0,
+      "mean_overall": 4.45,
+      "mean_latency_s": 16.266255192880635,
+      "p95_latency_s": 33.443946920533186,
+      "total_cost_usd": 0.00581182,
+      "mean_reasoning_tokens": 1141.875
+    },
+    {
+      "judge": "deepseek-v4.1-flash",
+      "success": 7,
+      "json_success_rate": 0.875,
+      "mean_overall": 3.9,
+      "mean_latency_s": 43.17435466814121,
+      "p95_latency_s": 87.56200722859938,
+      "total_cost_usd": 0.00594528,
+      "mean_reasoning_tokens": 1027.857142857143
+    }
+  ],
+  "correlations": [
+    {
+      "judge_a": "glm-5.3-flash",
+      "judge_b": "gpt-5.6-luna",
+      "n": 8,
+      "pearson": 0.9895442372010623,
+      "spearman": 0.9940297973880048,
+      "mae": 0.26875000000000016
+    },
+    {
+      "judge_a": "deepseek-v4.1-flash",
+      "judge_b": "gpt-5.6-luna",
+      "n": 7,
+      "pearson": 0.9267090178300279,
+      "spearman": 0.857142857142857,
+      "mae": 0.8214285714285714
+    },
+    {
+      "judge_a": "deepseek-v4.1-flash",
+      "judge_b": "glm-5.3-flash",
+      "n": 7,
+      "pearson": 0.9465871725793639,
+      "spearman": 0.857142857142857,
+      "mae": 0.8571428571428571
+    }
+  ],
+  "min_max_winners": [
+    {
+      "judge": "gpt-5.6-luna",
+      "item_id": "jcq-13",
+      "min": 5.8,
+      "max": 7.0,
+      "winner": "max"
+    },
+    {
+      "judge": "gpt-5.6-luna",
+      "item_id": "jcq-685",
+      "min": 5.0,
+      "max": 5.3,
+      "winner": "max"
+    },
+    {
+      "judge": "gpt-5.6-luna",
+      "item_id": "novel-ja-03",
+      "min": 2.8,
+      "max": 2.25,
+      "winner": "min"
+    },
+    {
+      "judge": "gpt-5.6-luna",
+      "item_id": "novel-ja-10",
+      "min": 3.4,
+      "max": 2.3,
+      "winner": "min"
+    },
+    {
+      "judge": "glm-5.3-flash",
+      "item_id": "jcq-13",
+      "min": 6.2,
+      "max": 7.0,
+      "winner": "max"
+    },
+    {
+      "judge": "glm-5.3-flash",
+      "item_id": "jcq-685",
+      "min": 4.8,
+      "max": 5.5,
+      "winner": "max"
+    },
+    {
+      "judge": "glm-5.3-flash",
+      "item_id": "novel-ja-03",
+      "min": 3.5,
+      "max": 2.5,
+      "winner": "min"
+    },
+    {
+      "judge": "glm-5.3-flash",
+      "item_id": "novel-ja-10",
+      "min": 3.5,
+      "max": 2.6,
+      "winner": "min"
+    },
+    {
+      "judge": "deepseek-v4.1-flash",
+      "item_id": "jcq-13",
+      "min": 6.8,
+      "max": 6.3,
+      "winner": "min"
+    },
+    {
+      "judge": "deepseek-v4.1-flash",
+      "item_id": "jcq-685",
+      "min": 4.5,
+      "max": 5.3,
+      "winner": "max"
+    },
+    {
+      "judge": "deepseek-v4.1-flash",
+      "item_id": "novel-ja-03",
+      "min": null,
+      "max": 1.5,
+      "winner": null
+    },
+    {
+      "judge": "deepseek-v4.1-flash",
+      "item_id": "novel-ja-10",
+      "min": 1.1,
+      "max": 1.8,
+      "winner": "max"
+    }
+  ]
+}

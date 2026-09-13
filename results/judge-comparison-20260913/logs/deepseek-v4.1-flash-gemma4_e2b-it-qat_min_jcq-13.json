@@ -1,0 +1,45 @@
+{
+  "id": "gen-1789252956-oaH8CQVuFyoSkLaWBHK6",
+  "object": "chat.completion",
+  "created": 1789252956,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"scores\":{\"fluency\":6,\"flexibility\":8,\"originality\":7,\"elaboration\":6},\"overall\":6.8,\"brief_rationale\":\"複数領域にまたがる案を具体例付きで挙げているが、件数は十分多くなく、末尾が未完で列挙が途切れている。\"}",
+        "refusal": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 807,
+    "completion_tokens": 1172,
+    "total_tokens": 1979,
+    "cost": 0.0008646,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0008646,
+      "upstream_inference_prompt_cost": 0.0001614,
+      "upstream_inference_completions_cost": 0.0007032
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1093,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

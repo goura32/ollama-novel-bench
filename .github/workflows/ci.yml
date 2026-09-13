@@ -13,6 +13,6 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --extra dev
-      - run: uv run ruff check src tests
+      - run: uv run ruff check src tests scripts
       - run: uv run pytest -q
-      - run: uv run python -m compileall -q src tests
+      - run: uv run python -m compileall -q src tests scripts
